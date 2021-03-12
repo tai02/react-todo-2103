@@ -2,7 +2,7 @@ import { VFC } from 'react'
 import { useSelector } from 'react-redux'
 
 import TodoItem from '@/components/TodoItem'
-import { StoreState } from '@/type/Store'
+import { StoreState } from '@/store'
 import { Todo } from '@/type/Todo'
 import { maxTodoCount } from '@/constants'
 

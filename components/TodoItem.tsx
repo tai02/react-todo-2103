@@ -4,15 +4,19 @@ import Checkbox from '@material-ui/core/Checkbox'
 import { Todo } from '@/type/Todo'
 import { CSSTransition } from 'react-transition-group'
 import { maxBodyLength } from '@/constants'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { todoAdded, todoUpdated, todoDeleted } from '@/slice/todosSlice'
+import { setIsComposing } from '@/slice/isComposingSlice'
+import { StoreState } from '@/store'
 
 type Props = {
   todo: Todo
 }
 
 const TodoItem: VFC<Props> = ({ todo }) => {
-  const [composing, setComposing] = useState(false)
+  const isComposing = useSelector<StoreState, boolean>(
+    (state) => state.isComposing
+  )
 
   const dispatch = useDispatch()
 
@@ -39,8 +43,8 @@ const TodoItem: VFC<Props> = ({ todo }) => {
     if (pressed.key !== 'Enter') return
 
     // 日本語入力での変換中の場合、処理中断
-    if (composing) {
-      setComposing(false)
+    if (isComposing) {
+      dispatch(setIsComposing(false))
       return
     }
 
@@ -52,6 +56,10 @@ const TodoItem: VFC<Props> = ({ todo }) => {
     const checkedTodo = { ...todo, checked: true }
     dispatch(todoUpdated(checkedTodo))
     setTimeout(() => dispatch(todoDeleted(todo.id)), 400)
+  }
+
+  const handleComposingStart = () => {
+    dispatch(setIsComposing(true))
   }
 
   return (
@@ -70,9 +78,9 @@ const TodoItem: VFC<Props> = ({ todo }) => {
             name="todo"
             maxLength={maxBodyLength}
             ref={register({ maxLength: maxBodyLength - 1 })} // 最大文字数の入力時にエラー表示
-            onCompositionStart={() => setComposing(true)}
             onBlur={handleBlur}
             onKeyUp={handlePressEnter}
+            onCompositionStart={handleComposingStart}
           />
           {errors.todo && (
             <p className="error-message">

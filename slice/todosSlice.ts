@@ -7,7 +7,7 @@ const initialTodo = { id: 1, body: '', checked: false }
 const initialState = [initialTodo]
 
 const todoSlice = createSlice({
-  name: 'posts',
+  name: 'todos',
   initialState,
   reducers: {
     todoAdded(state, action: PayloadAction<Todo>) {
