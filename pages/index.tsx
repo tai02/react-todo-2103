@@ -1,5 +1,5 @@
 import { useState, VFC } from 'react'
-import { TodoItem } from './TodoItem'
+import TodoItem from '@/components/TodoItem'
 
 export type Todo = {
   id: number

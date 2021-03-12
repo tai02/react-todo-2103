@@ -1,7 +1,7 @@
 import { FocusEventHandler, KeyboardEventHandler, useState, VFC } from 'react'
 import { useForm } from 'react-hook-form'
 import Checkbox from '@material-ui/core/Checkbox'
-import { Todo } from './index'
+import { Todo } from '../pages/index'
 import { CSSTransition } from 'react-transition-group'
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
 
 const maxLength = 200 // 文字数の上限
 
-export const TodoItem: VFC<Props> = ({
+const TodoItem: VFC<Props> = ({
   todo,
   createTodo,
   updateTodos,
@@ -116,3 +116,5 @@ export const TodoItem: VFC<Props> = ({
     </>
   )
 }
+
+export default TodoItem
