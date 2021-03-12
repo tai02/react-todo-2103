@@ -23,15 +23,8 @@ const TodoItem: VFC<Props> = ({ todo }) => {
     },
   })
 
-  const handleChange = () => {
-    const checkedTodo = { ...todo, checked: true }
-    dispatch(todoUpdated(checkedTodo))
-    dispatch(todoDeleted(todo.id))
-  }
-
   const update = (body: string) => {
     const updatedTodo = { ...todo, body }
-
     dispatch(todoUpdated(updatedTodo))
     dispatch(todoAdded(updatedTodo))
   }
@@ -53,6 +46,12 @@ const TodoItem: VFC<Props> = ({ todo }) => {
 
     const target = pressed.target as HTMLInputElement
     update(target.value)
+  }
+
+  const handleChange = () => {
+    const checkedTodo = { ...todo, checked: true }
+    dispatch(todoUpdated(checkedTodo))
+    setTimeout(() => dispatch(todoDeleted(todo.id)), 400)
   }
 
   return (
