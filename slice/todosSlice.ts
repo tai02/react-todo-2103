@@ -21,7 +21,7 @@ const todoSlice = createSlice({
       if (!latest.body && isLatest === isEmpty) return
 
       const newTodo = { ...initialTodo, id: getId() }
-      state = [...state, newTodo]
+      state.push(newTodo)
     },
     todoUpdated(state, action: PayloadAction<Todo>) {
       const updated = action.payload
