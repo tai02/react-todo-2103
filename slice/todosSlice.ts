@@ -21,15 +21,17 @@ const todoSlice = createSlice({
       if (!latest.body && isLatest === isEmpty) return
 
       const newTodo = { ...initialTodo, id: getId() }
-      state.push(newTodo)
+      state = [...state, newTodo]
     },
     todoUpdated(state, action: PayloadAction<Todo>) {
       const updated = action.payload
-      state.map((todo) => (todo.id === updated.id ? updated : todo))
+      state = state.map((todo) => (todo.id === updated.id ? updated : todo))
     },
     todoDeleted(state, action: PayloadAction<number>) {
       const id = action.payload
-      setTimeout(() => state.filter((todo) => todo.id !== id), 400)
+      setTimeout(() => {
+        state = state.filter((todo) => todo.id !== id)
+      }, 400)
     },
   },
 })
