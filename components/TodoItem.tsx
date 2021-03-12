@@ -1,26 +1,24 @@
 import { FocusEventHandler, KeyboardEventHandler, useState, VFC } from 'react'
 import { useForm } from 'react-hook-form'
 import Checkbox from '@material-ui/core/Checkbox'
-import { Todo } from '../pages/index'
+import { Todo } from '@/type/Todo'
 import { CSSTransition } from 'react-transition-group'
+import { maxBodyLength } from '@/constants'
+import { useDispatch, useSelector } from 'react-redux'
+import { todoAdded, todoUpdated, todoDeleted } from '@/slice/todosSlice'
+import { setIsComposing } from '@/slice/isComposingSlice'
+import { StoreState } from '@/store'
 
 type Props = {
   todo: Todo
-  createTodo: (todo: Todo, idEmpty: boolean) => void
-  updateTodos: (todo: Todo) => void
-  deleteTodo: (id: number) => void
 }
 
-const maxLength = 200 // 文字数の上限
+const TodoItem: VFC<Props> = ({ todo }) => {
+  const isComposing = useSelector<StoreState, boolean>(
+    (state) => state.isComposing
+  )
 
-const TodoItem: VFC<Props> = ({
-  todo,
-  createTodo,
-  updateTodos,
-  deleteTodo,
-}) => {
-  const [checked, setChecked] = useState(false)
-  const [composing, setComposing] = useState(false)
+  const dispatch = useDispatch()
 
   const { register, errors } = useForm({
     mode: 'onBlur',
@@ -29,16 +27,10 @@ const TodoItem: VFC<Props> = ({
     },
   })
 
-  const handleChange = () => {
-    setChecked(true)
-    deleteTodo(todo.id)
-  }
-
   const update = (body: string) => {
     const updatedTodo = { ...todo, body }
-
-    updateTodos(updatedTodo)
-    createTodo(updatedTodo, !body)
+    dispatch(todoUpdated(updatedTodo))
+    dispatch(todoAdded(updatedTodo))
   }
 
   const handleBlur: FocusEventHandler<HTMLInputElement> = (event) => {
@@ -51,8 +43,8 @@ const TodoItem: VFC<Props> = ({
     if (pressed.key !== 'Enter') return
 
     // 日本語入力での変換中の場合、処理中断
-    if (composing) {
-      setComposing(false)
+    if (isComposing) {
+      dispatch(setIsComposing(false))
       return
     }
 
@@ -60,12 +52,22 @@ const TodoItem: VFC<Props> = ({
     update(target.value)
   }
 
+  const handleChange = () => {
+    const checkedTodo = { ...todo, checked: true }
+    dispatch(todoUpdated(checkedTodo))
+    setTimeout(() => dispatch(todoDeleted(todo.id)), 400)
+  }
+
+  const handleComposingStart = () => {
+    dispatch(setIsComposing(true))
+  }
+
   return (
     <>
-      <CSSTransition in={checked} classNames="fade" timeout={200}>
+      <CSSTransition in={todo.checked} classNames="fade" timeout={200}>
         <li className="todo-item">
           <Checkbox
-            checked={checked}
+            checked={todo.checked}
             disabled={!todo.body}
             onChange={handleChange}
             inputProps={{ 'aria-label': 'primary checkbox' }}
@@ -74,16 +76,16 @@ const TodoItem: VFC<Props> = ({
             className="textbox"
             type="text"
             name="todo"
-            maxLength={maxLength}
-            ref={register({ maxLength: maxLength - 1 })} // 最大文字数の入力時にエラー表示
-            onCompositionStart={() => setComposing(true)}
+            maxLength={maxBodyLength}
+            ref={register({ maxLength: maxBodyLength - 1 })} // 最大文字数の入力時にエラー表示
             onBlur={handleBlur}
             onKeyUp={handlePressEnter}
+            onCompositionStart={handleComposingStart}
           />
           {errors.todo && (
-            <span className="error-message">
-              {`※ 最大${maxLength}文字まで入力可能です`}
-            </span>
+            <p className="error-message">
+              {`※ 最大${maxBodyLength}文字まで入力可能です`}
+            </p>
           )}
         </li>
       </CSSTransition>
@@ -91,7 +93,7 @@ const TodoItem: VFC<Props> = ({
       <style jsx>{`
         .textbox {
           color: #222;
-          width: 90%;
+          width: calc(100% - 100px);
           height: 20px;
           font-size: 16px;
           outline: none;
